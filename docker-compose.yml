@@ -1,0 +1,54 @@
+version: '3.8'
+services:
+  hami-mtproto-google:
+    image: telegrammessenger/mtg:latest
+    container_name: hami-mtproto-google
+    restart: always
+    ports:
+      - "443:443"
+    volumes:
+      - ./mtg:/data
+    command: run --cloak-port 993 -b 0.0.0.0:443 -4 ${SERVER_IP}:443 ${SECRET_GOOGLE} --allow-replay
+    # Replace SECRET_GOOGLE with ee... from secrets.txt
+
+  hami-mtproto-cloudflare:
+    image: telegrammessenger/mtg:latest
+    container_name: hami-mtproto-cloudflare
+    restart: always
+    ports:
+      - "8443:443"
+    command: run -b 0.0.0.0:443 ${SECRET_CLOUDFLARE}
+
+  hami-mtproto-microsoft:
+    image: telegrammessenger/mtg:latest
+    container_name: hami-mtproto-microsoft
+    restart: always
+    ports:
+      - "8444:443"
+    command: run -b 0.0.0.0:443 ${SECRET_MICROSOFT}
+
+  # Iran tunnel FRP server (foreign)
+  hami-frp-server:
+    image: snowdreamtech/frps
+    container_name: hami-frp-server
+    restart: always
+    ports:
+      - "7000:7000"
+      - "7500:7500"
+      - "8443:8443"
+    volumes:
+      - ./iran_tunnel_configs/frps_foreign.ini:/etc/frp/frps.ini
+
+  # Web dashboard
+  hami-dashboard:
+    image: python:3.11-slim
+    container_name: hami-dashboard
+    restart: always
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./hami_proxy:/app
+      - /var/run/docker.sock:/var/run/docker.sock
+      - /opt/hami-proxy:/opt/hami-proxy
+    working_dir: /app
+    command: bash -c "pip install flask qrcode && python web_dashboard.py"
