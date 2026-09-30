@@ -1,0 +1,20 @@
+[Unit]
+Description=HAMI Combined Panel+Bot+Dashboard Pro Max — Domain proxy.hamidesigns.shop
+After=network-online.target docker.service
+Wants=network-online.target
+Requires=docker.service
+
+[Service]
+Type=simple
+WorkingDirectory=/opt/hami-proxy
+Environment=HAMI_BOT_TOKEN=
+Environment=HAMI_ADMIN_USER=admin
+Environment=HAMI_ADMIN_PASS=Hami@2026Pro
+ExecStart=/usr/bin/python3 /root/hami-telegram-proxy/hami_proxy/combined_panel_bot.py
+Restart=always
+RestartSec=5
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target
