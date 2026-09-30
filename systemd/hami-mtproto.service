@@ -1,0 +1,16 @@
+[Unit]
+Description=HAMI Telegram MTProto Proxy Pro — Anti-Filter High Speed
+After=docker.service network-online.target
+Requires=docker.service
+Wants=network-online.target
+
+[Service]
+Type=simple
+Restart=always
+RestartSec=5
+ExecStartPre=-/usr/bin/docker rm -f hami-mtproto
+ExecStart=/usr/bin/docker run --rm --name hami-mtproto -p 443:443 -v /opt/hami-proxy:/data telegrammessenger/mtg:latest run --cloak-port 993 -b 0.0.0.0:443 -4 0.0.0.0:443 ${SECRET} --allow-replay
+ExecStop=/usr/bin/docker stop hami-mtproto
+
+[Install]
+WantedBy=multi-user.target
